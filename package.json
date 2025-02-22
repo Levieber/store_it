@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "bun format:check && bun lint:check && bun type:check",
+    "lint:check": "next lint",
+    "format:check": "prettier --check .",
     "type:check": "tsc"
   },
   "dependencies": {
@@ -15,14 +17,18 @@
     "next": "15.1.7"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
     "eslint": "^9",
     "eslint-config-next": "15.1.7",
-    "@eslint/eslintrc": "^3"
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-tailwindcss": "^3.18.0",
+    "postcss": "^8",
+    "prettier": "^3.5.2",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
   }
 }
