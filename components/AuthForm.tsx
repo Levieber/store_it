@@ -4,13 +4,13 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { createAccount } from "@/lib/actions/users.actions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import Link from "next/link";
@@ -38,6 +38,7 @@ type AuthFormValues = z.infer<ReturnType<typeof authFormSchema>>;
 export function AuthForm({ type }: AuthFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [_, setAccountId] = useState<string | null>(null);
 
   const form = useForm<AuthFormValues>({
     resolver: zodResolver(authFormSchema(type)),
@@ -48,7 +49,26 @@ export function AuthForm({ type }: AuthFormProps) {
   });
 
   const onSubmit = async (data: AuthFormValues) => {
-    console.log(data);
+    setIsLoading(true);
+    setErrorMessage("");
+
+    try {
+      const user = await createAccount({
+        fullName: data.fullName ?? "",
+        email: data.email,
+      });
+
+      setAccountId(user.accountId);
+
+      if (!user) {
+        setErrorMessage("An error occurred. Please try again.");
+        setIsLoading(false);
+      }
+    } catch {
+      setErrorMessage("Failed to create account. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
