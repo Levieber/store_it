@@ -1,6 +1,7 @@
 "use server";
 
-import { createAdminClient } from "@/lib/appwrite";
+import { avatarPlaceholderUrl } from "@/constants";
+import { createAdminClient, createSessionClient } from "@/lib/appwrite";
 import { appwriteConfig } from "@/lib/appwrite/config";
 import { parseStringify } from "@/lib/utils";
 import { cookies } from "next/headers";
@@ -61,8 +62,7 @@ export const createAccount = async ({
         fullName,
         email,
         accountId,
-        avatar:
-          "https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png",
+        avatar: avatarPlaceholderUrl,
       },
     );
   }
@@ -92,4 +92,29 @@ export const verifySecret = async ({ accountId, otp }: VerifySecretProps) => {
   } catch (error) {
     handleError(error, "Failed to verify OTP");
   }
+};
+
+interface User {
+  $id: string;
+  fullName: string;
+  email: string;
+  avatar: string;
+  ownerId: string;
+  accountId: string;
+}
+
+export const getCurrentUser = async () => {
+  const { databases, account } = await createSessionClient();
+
+  const result = await account.get();
+
+  const user = await databases.listDocuments(
+    appwriteConfig.databaseId,
+    appwriteConfig.usersCollectionId,
+    [Query.equal("accountId", result.$id)],
+  );
+
+  if (user.total <= 0) return null;
+
+  return parseStringify<User>(user.documents[0] as unknown as User);
 };
