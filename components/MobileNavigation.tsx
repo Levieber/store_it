@@ -10,6 +10,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { navItems } from "@/constants";
+import { signOutUser } from "@/lib/actions/users.actions";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
@@ -102,7 +103,10 @@ export function MobileNavigation({
           <div className="flex flex-col justify-between gap-5 pb-5">
             <FileUploader />
 
-            <Button className="mobile-sign-out-button" onClick={() => {}}>
+            <Button
+              className="mobile-sign-out-button"
+              onClick={async () => await signOutUser()}
+            >
               <Image
                 src="/assets/icons/logout.svg"
                 alt="Logout"

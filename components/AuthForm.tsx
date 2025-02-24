@@ -11,7 +11,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { createAccount } from "@/lib/actions/users.actions";
+import { createAccount, signInUser } from "@/lib/actions/users.actions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import Link from "next/link";
@@ -54,15 +54,20 @@ export function AuthForm({ type }: AuthFormProps) {
     setErrorMessage("");
 
     try {
-      const user = await createAccount({
-        fullName: data.fullName ?? "",
-        email: data.email,
-      });
+      const user =
+        type === "sign-up"
+          ? await createAccount({
+              fullName: data.fullName ?? "",
+              email: data.email,
+            })
+          : await signInUser({ email: data.email });
 
       setAccountId(user.accountId);
 
-      if (!user) {
-        setErrorMessage("An error occurred. Please try again.");
+      if (!user.accountId) {
+        setErrorMessage(
+          "error" in user ? user.error : "An error occurred. Please try again.",
+        );
         setIsLoading(false);
       }
     } catch {

@@ -9,7 +9,13 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const currentUser = await getCurrentUser();
+  let currentUser;
+
+  try {
+    currentUser = await getCurrentUser();
+  } catch {
+    redirect("/sign-in");
+  }
 
   if (!currentUser) redirect("/sign-in");
 
