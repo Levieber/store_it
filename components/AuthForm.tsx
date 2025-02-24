@@ -1,5 +1,6 @@
 "use client";
 
+import { OtpModal } from "@/components/OTPModal";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -38,7 +39,7 @@ type AuthFormValues = z.infer<ReturnType<typeof authFormSchema>>;
 export function AuthForm({ type }: AuthFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [_, setAccountId] = useState<string | null>(null);
+  const [accountId, setAccountId] = useState<string | null>("");
 
   const form = useForm<AuthFormValues>({
     resolver: zodResolver(authFormSchema(type)),
@@ -155,7 +156,9 @@ export function AuthForm({ type }: AuthFormProps) {
           </div>
         </form>
       </Form>
-      {/* OTP Verification */}
+      {accountId && (
+        <OtpModal email={form.getValues("email")} accountId={accountId} />
+      )}
     </>
   );
 }
