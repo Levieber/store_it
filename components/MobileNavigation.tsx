@@ -29,6 +29,8 @@ export function MobileNavigation({
   avatar,
   fullName,
   email,
+  accountId,
+  ownerId,
 }: MobileNavigationProps) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
@@ -101,7 +103,7 @@ export function MobileNavigation({
           <Separator className="my-6 bg-light-200/20" />
 
           <div className="flex flex-col justify-between gap-5 pb-5">
-            <FileUploader />
+            <FileUploader accountId={accountId} ownerId={ownerId} />
 
             <Button
               className="mobile-sign-out-button"

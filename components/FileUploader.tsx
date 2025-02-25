@@ -1,3 +1,140 @@
-export function FileUploader() {
-  return <div>FileUploader</div>;
+"use client";
+
+import { Thumbnail } from "@/components/thumbnail";
+import { Button } from "@/components/ui/button";
+import { cn, convertFileToUrl, getFileType } from "@/lib/utils";
+import { useCallback, useState } from "react";
+import { useDropzone } from "react-dropzone";
+import Image from "next/image";
+import { uploadFile } from "@/lib/actions/files.actions";
+import { MAX_FILE_SIZE } from "@/constants";
+import { toast } from "sonner";
+import { usePathname } from "next/navigation";
+
+interface FileUploaderProps {
+  ownerId: string;
+  accountId: string;
+  className?: string;
+}
+
+export function FileUploader({
+  accountId,
+  ownerId,
+  className,
+}: FileUploaderProps) {
+  const [files, setFiles] = useState<File[]>([]);
+
+  const path = usePathname();
+
+  const onDrop = useCallback(
+    async (acceptedFiles: File[]) => {
+      setFiles(acceptedFiles);
+
+      const uploadPromises = acceptedFiles.map(async (file) => {
+        if (file.size > MAX_FILE_SIZE) {
+          setFiles((prevFiles) =>
+            prevFiles.filter((f) => f.name !== file.name),
+          );
+
+          return toast(
+            <p className="body-2 text-white">
+              <span className="font-semibold">{file.name}</span> is too large.
+              Max file size is 50MB.
+            </p>,
+            {
+              classNames: {
+                toast: "error-toast",
+              },
+            },
+          );
+        }
+
+        return uploadFile({
+          file,
+          ownerId,
+          accountId,
+          path,
+        }).then((uploadedFile) => {
+          if (uploadedFile) {
+            setFiles((prevFiles) =>
+              prevFiles.filter((f) => f.name !== uploadedFile.name),
+            );
+          }
+        });
+      });
+
+      await Promise.all(uploadPromises);
+    },
+    [accountId, ownerId, path],
+  );
+
+  const { getRootProps, getInputProps } = useDropzone({ onDrop });
+
+  const handleRemoveFile = (
+    e: React.MouseEvent<HTMLImageElement>,
+    fileName: string,
+  ) => {
+    e.stopPropagation();
+
+    setFiles((prevFiles) => prevFiles.filter((file) => file.name !== fileName));
+  };
+
+  return (
+    <div {...getRootProps()} className="cursor-pointer">
+      <input {...getInputProps()} />
+      <Button type="button" className={cn("uploader-button", className)}>
+        <Image
+          src="/assets/icons/upload.svg"
+          alt="Upload"
+          width={24}
+          height={24}
+        />
+        <p>Upload</p>
+      </Button>
+
+      {files.length > 0 && (
+        <ul className="uploader-preview-list">
+          <h3 className="h4 text-light-100">Uploading</h3>
+
+          {files.map((file, index) => {
+            const { type, extension } = getFileType(file.name);
+
+            return (
+              <li
+                key={`${file.name}-${index}`}
+                className="uploader-preview-item"
+              >
+                <div className="flex items-center gap-3">
+                  <Thumbnail
+                    type={type}
+                    extension={extension}
+                    url={convertFileToUrl(file)}
+                  />
+
+                  <div className="preview-item-name">
+                    {file.name}{" "}
+                    <Image
+                      src="/assets/icons/file-loader.gif"
+                      alt="Loader"
+                      width={80}
+                      height={26}
+                      unoptimized
+                    />
+                  </div>
+                </div>
+
+                <Image
+                  src="/assets/icons/remove.svg"
+                  alt="Remove file"
+                  width={24}
+                  height={24}
+                  onClick={(e) => handleRemoveFile(e, file.name)}
+                />
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
 }

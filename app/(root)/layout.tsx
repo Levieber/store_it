@@ -23,8 +23,8 @@ export default async function RootLayout({
     <main className="flex h-screen">
       <Sidebar {...currentUser} />
       <section className="flex h-full flex-1 flex-col">
-        <MobileNavigation {...currentUser} />
-        <Header />
+        <MobileNavigation {...currentUser} ownerId={currentUser.$id} />
+        <Header ownerId={currentUser.$id} accountId={currentUser.accountId} />
         <div className="main-content">{children}</div>
       </section>
     </main>

@@ -4,12 +4,17 @@ import { Button } from "@/components/ui/button";
 import { signOutUser } from "@/lib/actions/users.actions";
 import Image from "next/image";
 
-export function Header() {
+interface HeaderProps {
+  accountId: string;
+  ownerId: string;
+}
+
+export function Header({ accountId, ownerId }: HeaderProps) {
   return (
     <header className="header">
       <Search />
       <div className="header-wrapper">
-        <FileUploader />
+        <FileUploader accountId={accountId} ownerId={ownerId} />
 
         <form
           action={async () => {
