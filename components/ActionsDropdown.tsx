@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { actionsDropdownItems } from "@/constants";
-import { FileDocument } from "@/lib/actions/files.actions";
+import { FileDocument, renameFile } from "@/lib/actions/files.actions";
 import { ActionType } from "@/types";
 import { useState } from "react";
 import Image from "next/image";
@@ -24,6 +24,7 @@ import { constructDownloadUrl } from "@/lib/utils";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { usePathname } from "next/navigation";
 
 interface ActionsDropdownProps {
   file: FileDocument;
@@ -36,7 +37,9 @@ export function ActionsDropdown({ file }: ActionsDropdownProps) {
   const [fileName, setFileName] = useState(file.name);
   const [isLoading, setIsLoading] = useState(false);
 
-  const cancelAction = () => {
+  const path = usePathname();
+
+  const closeAllModals = () => {
     setIsModalOpen(false);
     setIsDropdownOpen(false);
     setAction(null);
@@ -44,7 +47,31 @@ export function ActionsDropdown({ file }: ActionsDropdownProps) {
   };
 
   const handleAction = async () => {
+    if (!action) return;
+
     setIsLoading(true);
+
+    let result = null;
+
+    const actions = {
+      rename: async () =>
+        await renameFile({
+          fileId: file.$id,
+          name: fileName,
+          extension: file.extension,
+          path,
+        }),
+      delete: async () => console.log("delete"),
+      share: async () => console.log("share"),
+    };
+
+    if (!actions[action.value as keyof typeof actions]) return;
+
+    result = await actions[action.value as keyof typeof actions]();
+
+    if (result) closeAllModals();
+
+    setIsLoading(false);
   };
 
   return (
@@ -127,7 +154,7 @@ export function ActionsDropdown({ file }: ActionsDropdownProps) {
               <DialogFooter className="flex flex-col gap-3 md:flex-row">
                 <Button
                   disabled={isLoading}
-                  onClick={cancelAction}
+                  onClick={closeAllModals}
                   className="modal-cancel-button"
                 >
                   Cancel

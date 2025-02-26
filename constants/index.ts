@@ -52,7 +52,7 @@ export const actionsDropdownItems = [
     icon: "/assets/icons/delete.svg",
     value: "delete",
   },
-];
+] as const;
 
 export const sortTypes = [
   {
