@@ -85,12 +85,13 @@ export const createQueries = async (currentUser: User) => {
 
 export interface FileDocument {
   $id: string;
+  $createdAt: string;
   name: string;
   url: string;
   type: FileType;
   bucketFileId: string;
   accountId: string;
-  owner: string;
+  owner: User;
   extension: string;
   size: number;
   users: string[];
