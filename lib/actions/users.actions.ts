@@ -90,7 +90,7 @@ export const verifySecret = async ({ accountId, otp }: VerifySecretProps) => {
   }
 };
 
-interface User {
+export interface User {
   $id: string;
   fullName: string;
   email: string;

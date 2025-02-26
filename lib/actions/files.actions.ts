@@ -1,5 +1,6 @@
 "use server";
 
+import { getCurrentUser, User } from "@/lib/actions/users.actions";
 import { createAdminClient } from "@/lib/appwrite";
 import { appwriteConfig } from "@/lib/appwrite/config";
 import {
@@ -8,8 +9,9 @@ import {
   handleError,
   parseStringify,
 } from "@/lib/utils";
+import { FileType } from "@/types";
 import { revalidatePath } from "next/cache";
-import { ID } from "node-appwrite";
+import { ID, Query } from "node-appwrite";
 import { InputFile } from "node-appwrite/file";
 
 interface UploadFileProps {
@@ -67,5 +69,54 @@ export const uploadFile = async ({
     return parseStringify(newFile);
   } catch (error) {
     handleError(error, "Failed to upload file");
+  }
+};
+
+export const createQueries = async (currentUser: User) => {
+  const queries = [
+    Query.or([
+      Query.equal("owner", [currentUser.$id]),
+      Query.contains("users", [currentUser.email]),
+    ]),
+  ];
+
+  return queries;
+};
+
+export interface FileDocument {
+  $id: string;
+  name: string;
+  url: string;
+  type: FileType;
+  bucketFileId: string;
+  accountId: string;
+  owner: string;
+  extension: string;
+  size: number;
+  users: string[];
+}
+
+export const getFiles = async () => {
+  const { databases } = await createAdminClient();
+
+  try {
+    const currentUser = await getCurrentUser();
+
+    if (!currentUser) throw new Error("User not found");
+
+    const queries = await createQueries(currentUser);
+
+    const files = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.filesCollectionId,
+      queries,
+    );
+
+    return parseStringify<FileDocument[]>(
+      files.documents as unknown as FileDocument[],
+    );
+  } catch (error) {
+    handleError(error, "Failed to retrieve files");
+    return [];
   }
 };
