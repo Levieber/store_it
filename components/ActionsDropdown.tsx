@@ -25,6 +25,7 @@ import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
+import { FileDetails } from "@/components/ActionsModalContent";
 
 interface ActionsDropdownProps {
   file: FileDocument;
@@ -149,6 +150,8 @@ export function ActionsDropdown({ file }: ActionsDropdownProps) {
                 onChange={(e) => setFileName(e.target.value)}
               />
             )}
+
+            {action.value === "details" && <FileDetails file={file} />}
 
             {["rename", "delete", "share"].includes(action.value) && (
               <DialogFooter className="flex flex-col gap-3 md:flex-row">

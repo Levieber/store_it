@@ -86,6 +86,7 @@ export const createQueries = async (currentUser: User) => {
 export interface FileDocument {
   $id: string;
   $createdAt: string;
+  $updatedAt: string;
   name: string;
   url: string;
   type: FileType;
