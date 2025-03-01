@@ -16,7 +16,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { actionsDropdownItems } from "@/constants";
-import { FileDocument, renameFile } from "@/lib/actions/files.actions";
+import {
+  FileDocument,
+  renameFile,
+  updateFileUsers,
+} from "@/lib/actions/files.actions";
 import { ActionType } from "@/types";
 import { useState } from "react";
 import Image from "next/image";
@@ -25,7 +29,7 @@ import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
-import { FileDetails } from "@/components/ActionsModalContent";
+import { FileDetails, ShareInput } from "@/components/ActionsModalContent";
 
 interface ActionsDropdownProps {
   file: FileDocument;
@@ -37,6 +41,7 @@ export function ActionsDropdown({ file }: ActionsDropdownProps) {
   const [action, setAction] = useState<ActionType | null>(null);
   const [fileName, setFileName] = useState(file.name);
   const [isLoading, setIsLoading] = useState(false);
+  const [emails, setEmails] = useState<string[]>([]);
 
   const path = usePathname();
 
@@ -45,6 +50,22 @@ export function ActionsDropdown({ file }: ActionsDropdownProps) {
     setIsDropdownOpen(false);
     setAction(null);
     setFileName(file.name);
+  };
+
+  const handleRemoveUser = async (email: string) => {
+    const updatedEmails = emails.filter((e) => e !== email);
+
+    const success = await updateFileUsers({
+      fileId: file.$id,
+      emails: updatedEmails,
+      path,
+    });
+
+    if (success) {
+      setEmails(updatedEmails);
+    }
+
+    closeAllModals();
   };
 
   const handleAction = async () => {
@@ -62,8 +83,9 @@ export function ActionsDropdown({ file }: ActionsDropdownProps) {
           extension: file.extension,
           path,
         }),
+      share: async () =>
+        await updateFileUsers({ fileId: file.$id, emails, path }),
       delete: async () => console.log("delete"),
-      share: async () => console.log("share"),
     };
 
     if (!actions[action.value as keyof typeof actions]) return;
@@ -152,6 +174,14 @@ export function ActionsDropdown({ file }: ActionsDropdownProps) {
             )}
 
             {action.value === "details" && <FileDetails file={file} />}
+
+            {action.value === "share" && (
+              <ShareInput
+                file={file}
+                onInputChange={setEmails}
+                onRemove={handleRemoveUser}
+              />
+            )}
 
             {["rename", "delete", "share"].includes(action.value) && (
               <DialogFooter className="flex flex-col gap-3 md:flex-row">
