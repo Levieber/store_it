@@ -11,8 +11,8 @@ interface TypeProps {
 
 export default async function Type({ params, searchParams }: TypeProps) {
   const type = (await params).type;
-  const searchText = ((await searchParams).query as string);
-  const sort = ((await searchParams).sort as SortType);
+  const searchText = (await searchParams).query as string;
+  const sort = (await searchParams).sort as SortType;
 
   const types = getFileTypesParams(type);
 
