@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { actionsDropdownItems } from "@/constants";
 import {
+  deleteFile,
   FileDocument,
   renameFile,
   updateFileUsers,
@@ -85,7 +86,12 @@ export function ActionsDropdown({ file }: ActionsDropdownProps) {
         }),
       share: async () =>
         await updateFileUsers({ fileId: file.$id, emails, path }),
-      delete: async () => console.log("delete"),
+      delete: async () =>
+        await deleteFile({
+          fileId: file.$id,
+          bucketFileId: file.bucketFileId,
+          path,
+        }),
     };
 
     if (!actions[action.value as keyof typeof actions]) return;
@@ -181,6 +187,13 @@ export function ActionsDropdown({ file }: ActionsDropdownProps) {
                 onInputChange={setEmails}
                 onRemove={handleRemoveUser}
               />
+            )}
+
+            {action.value === "delete" && (
+              <p className="delete-confirmation">
+                Are you sure you want to delete{" "}
+                <span className="delete-file-name">{file.name}</span>?
+              </p>
             )}
 
             {["rename", "delete", "share"].includes(action.value) && (
