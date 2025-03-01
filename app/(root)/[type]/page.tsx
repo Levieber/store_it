@@ -1,15 +1,22 @@
 import { Card } from "@/components/Card";
 import { Sort } from "@/components/Sort";
 import { getFiles } from "@/lib/actions/files.actions";
+import { getFileTypesParams } from "@/lib/utils";
+import { FileType, SearchParams, SortType } from "@/types";
 
 interface TypeProps {
-  params: Promise<{ type: string }>;
+  params: Promise<{ type: FileType }>;
+  searchParams: SearchParams;
 }
 
-export default async function Type({ params }: TypeProps) {
+export default async function Type({ params, searchParams }: TypeProps) {
   const type = (await params).type;
+  const searchText = ((await searchParams).query as string) || "";
+  const sort = ((await searchParams).sort as SortType) || "";
 
-  const files = await getFiles();
+  const types = getFileTypesParams(type);
+
+  const files = await getFiles({ types, searchText, sort });
 
   return (
     <div className="page-container">

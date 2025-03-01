@@ -7,3 +7,9 @@ export interface ActionType {
   icon: string;
   value: (typeof actionsDropdownItems)[number]["value"];
 }
+
+export type SearchParams = Promise<
+  Record<string, string | string[] | undefined>
+>;
+
+export type SortType = `${string}-${string}`;

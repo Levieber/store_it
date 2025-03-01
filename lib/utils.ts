@@ -243,7 +243,7 @@ export const getUsageSummary = (totalSpace: GetUsageSummaryProps) => {
   ];
 };
 
-export const getFileTypesParams = (type: string) => {
+export const getFileTypesParams = (type: string): FileType[] => {
   switch (type) {
     case "documents":
       return ["document"];
