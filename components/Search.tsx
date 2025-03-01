@@ -1,7 +1,7 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FileDocument, getFiles } from "@/lib/actions/files.actions";
 import { Thumbnail } from "@/components/thumbnail";
@@ -14,7 +14,6 @@ export function Search() {
   const [results, setResults] = useState<FileDocument[]>([]);
   const [isOpen, setIsOpen] = useState(false);
 
-  const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get("query") || "";
@@ -26,7 +25,7 @@ export function Search() {
       if (!debouncedQuery) {
         setResults([]);
         setIsOpen(false);
-        return router.push(pathname.replace(searchParams.toString(), ""));
+        return;
       }
 
       const files = await getFiles({
@@ -38,11 +37,13 @@ export function Search() {
     };
 
     fetchFiles();
-  }, [pathname, debouncedQuery, router, searchParams]);
+  }, [debouncedQuery]);
 
   useEffect(() => {
     if (!searchQuery) {
       setQuery("");
+    } else {
+      setQuery(searchQuery);
     }
   }, [searchQuery]);
 
